@@ -1,0 +1,35 @@
+﻿=== 1. Structure de la table student creee par Hibernate (ddl-auto=update) ===
+PS> mysql -u root -e "USE studentdb; DESCRIBE student;"
+Field	Type	Null	Key	Default	Extra
+id	int(11)	NO	PRI	NULL	auto_increment
+date_naissance	date	NO		NULL	
+email	varchar(120)	NO	UNI	NULL	
+filiere	varchar(40)	NO		NULL	
+nom	varchar(60)	NO		NULL	
+prenom	varchar(60)	NO		NULL	
+
+=== 2. Contenu de la table student ===
+PS> mysql -u root -e "USE studentdb; SELECT * FROM student ORDER BY id;"
+id	date_naissance	email	filiere	nom	prenom
+1	2001-03-14	ahmed.benidar@toubkalit.ma	Genie Informatique	BEN IDAR	Ahmed
+2	2000-07-22	salma.elfassi@toubkalit.ma	Genie Informatique	EL FASSI	Salma
+3	1999-11-05	yassine.oubaha@toubkalit.ma	Genie Civil	OUBAHA	Yassine
+4	2002-01-30	khadija.ndahbi@toubkalit.ma	Genie Industriel	NDAHBI	Khadija
+5	1998-09-18	hamza.bouzid@toubkalit.ma	Genie Mecanique	BOUZID	Hamza
+6	2001-06-02	nadia.amraoui@toubkalit.ma	Genie Civil	AMRAOUI	Nadia
+7	2003-04-27	mehdi.tazi@toubkalit.ma	Genie Informatique	TAZI	Mehdi
+8	2000-12-09	souad.chakir@toubkalit.ma	Genie Industriel	CHAKIR	Souad
+
+=== 3. Repartition par annee de naissance (requete du repository) ===
+PS> mysql -u root -e "USE studentdb; SELECT YEAR(date_naissance) AS annee, COUNT(*) AS nb FROM student GROUP BY annee;"
+annee	nb
+1998	1
+1999	1
+2000	2
+2001	2
+2002	1
+2003	1
+
+=== 4. Nombre total d'etudiants enregistres ===
+total_etudiants
+8

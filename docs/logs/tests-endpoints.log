@@ -1,0 +1,132 @@
+﻿=== 1. Nombre d'etudiants enregistres ===
+PS> curl.exe -s http://localhost:8080/students/count
+8
+[HTTP 200]
+
+=== 2. Liste complete des etudiants ===
+PS> curl.exe -s http://localhost:8080/students/all | ConvertFrom-Json | Format-Table id,nom,prenom,dateNaissance,filiere -AutoSize
+
+id nom      prenom  dateNaissance filiere           
+-- ---      ------  ------------- -------           
+ 1 BEN IDAR Ahmed   2001-03-14    Genie Informatique
+ 2 EL FASSI Salma   2000-07-22    Genie Informatique
+ 3 OUBAHA   Yassine 1999-11-05    Genie Civil       
+ 4 NDAHBI   Khadija 2002-01-30    Genie Industriel  
+ 5 BOUZID   Hamza   1998-09-18    Genie Mecanique   
+ 6 AMRAOUI  Nadia   2001-06-02    Genie Civil       
+ 7 TAZI     Mehdi   2003-04-27    Genie Informatique
+ 8 CHAKIR   Souad   2000-12-09    Genie Industriel  
+
+
+
+
+=== 3. POST /students/save : ajout d'un etudiant ===
+PS> curl.exe -s -X POST http://localhost:8080/students/save -H "Content-Type: application/json" -d @docs/payloads/etudiant.json
+{
+  "nom": "ALAOUI",
+  "prenom": "Imane",
+  "dateNaissance": "2002-05-17",
+  "email": "imane.alaoui@toubkalit.ma",
+  "filiere": "Genie Informatique"
+}
+{"id":9,"nom":"ALAOUI","prenom":"Imane","dateNaissance":"2002-05-17","email":"imane.alaoui@toubkalit.ma","filiere":"Genie Informatique","nomComplet":"ALAOUI Imane"}
+[HTTP 201]
+
+=== 4. GET /students/9 : consultation de l'etudiant cree ===
+PS> curl.exe -s http://localhost:8080/students/9
+{"id":9,"nom":"ALAOUI","prenom":"Imane","dateNaissance":"2002-05-17","email":"imane.alaoui@toubkalit.ma","filiere":"Genie Informatique","nomComplet":"ALAOUI Imane"}
+[HTTP 200]
+
+=== 5. GET /students/count apres ajout ===
+PS> curl.exe -s http://localhost:8080/students/count
+9
+[HTTP 200]
+
+=== 6. GET /students/byYear : repartition par annee de naissance ===
+PS> curl.exe -s http://localhost:8080/students/byYear
+[[1998,1],[1999,1],[2000,2],[2001,2],[2002,2],[2003,1]]
+[HTTP 200]
+
+=== 7. POST /students/save : donnees invalides (validation Jakarta) ===
+PS> curl.exe -s -X POST http://localhost:8080/students/save -H "Content-Type: application/json" -d @docs/payloads/etudiant-invalide.json
+{"horodatage":"2026-11-02T18:09:52.900685800","statut":400,"erreur":"Bad Request","message":"Certaines donnees sont invalides","chemin":"/students/save","champsInvalides":{"filiere":"La filiere est obligatoire","dateNaissance":"La date de naissance doit etre dans le passe","email":"L'adresse e-mail n'est pas valide","nom":"Le nom est obligatoire"}}
+[HTTP 400]
+
+=== 8. GET /students/999 : identifiant inexistant ===
+PS> curl.exe -s http://localhost:8080/students/999
+{"horodatage":"2026-11-02T18:09:52.983345600","statut":404,"erreur":"Not Found","message":"Aucun etudiant ne correspond a l'identifiant 999","chemin":"/students/999"}
+[HTTP 404]
+
+=== 9. GET /students/search?nom=BEN ===
+PS> curl.exe -s "http://localhost:8080/students/search?nom=BEN" | ConvertFrom-Json | Format-Table id,nom,prenom,filiere -AutoSize
+
+id nom      prenom filiere           
+-- ---      ------ -------           
+ 1 BEN IDAR Ahmed  Genie Informatique
+
+
+
+
+=== 10. GET /students/statistiques ===
+PS> curl.exe -s http://localhost:8080/students/statistiques | ConvertFrom-Json | ConvertTo-Json -Depth 4
+{
+    "totalEtudiants":  9,
+    "nombreFilieres":  4,
+    "repartitionParFiliere":  {
+                                  "Genie Informatique":  4,
+                                  "Genie Civil":  2,
+                                  "Genie Industriel":  2,
+                                  "Genie Mecanique":  1
+                              },
+    "repartitionParAnneeNaissance":  [
+                                         {
+                                             "annee":  1998,
+                                             "nombreEtudiants":  1
+                                         },
+                                         {
+                                             "annee":  1999,
+                                             "nombreEtudiants":  1
+                                         },
+                                         {
+                                             "annee":  2000,
+                                             "nombreEtudiants":  2
+                                         },
+                                         {
+                                             "annee":  2001,
+                                             "nombreEtudiants":  2
+                                         },
+                                         {
+                                             "annee":  2002,
+                                             "nombreEtudiants":  2
+                                         },
+                                         {
+                                             "annee":  2003,
+                                             "nombreEtudiants":  1
+                                         }
+                                     ]
+}
+
+=== 11. DELETE /students/delete/9 : suppression puis deuxieme appel ===
+PS> curl.exe -s -X DELETE http://localhost:8080/students/delete/9
+
+[HTTP 204]
+
+PS> curl.exe -s -X DELETE http://localhost:8080/students/delete/9
+
+[HTTP 404]
+
+=== 12. Documentation OpenAPI generee par springdoc ===
+PS> curl.exe -s http://localhost:8080/v3/api-docs | ConvertFrom-Json | Select-Object -ExpandProperty paths | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Name | Where-Object { $_ -like '/students*' }
+/students/all
+/students/byYear
+/students/count
+/students/delete/{id}
+/students/save
+/students/search
+/students/statistiques
+/students/{id}
+
+=== 13. Swagger UI ===
+PS> curl.exe -s -o NUL -w "HTTP %{http_code}" http://localhost:8080/swagger-ui/index.html
+HTTP 200
+

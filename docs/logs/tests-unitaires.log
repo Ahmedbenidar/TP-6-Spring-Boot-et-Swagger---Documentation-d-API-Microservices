@@ -1,0 +1,39 @@
+﻿=== 1. Rapport texte genere par Surefire ===
+PS> Get-Content target\surefire-reports\com.example.studentmanagement.web.StudentControllerTest.txt
+-------------------------------------------------------------------------------
+Test set: com.example.studentmanagement.web.StudentControllerTest
+-------------------------------------------------------------------------------
+Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.046 s -- in com.example.studentmanagement.web.StudentControllerTest
+
+=== 2. Detail des 9 tests executes ===
+PS> ([xml](Get-Content target\surefire-reports\TEST-com.example.studentmanagement.web.StudentControllerTest.xml)).testsuite.testcase | Format-Table name,time -AutoSize
+
+test                                      duree_s statut
+----                                      ------- ------
+supprimerUnEtudiantExistantRenvoie204     1.885   OK    
+repartitionParAnneeRenvoie200             0.009   OK    
+supprimerUnEtudiantInexistantRenvoie404   0.007   OK    
+consulterUnEtudiantAbsentLeveUneException 0.016   OK    
+rechercherParNomRenvoie200                0.006   OK    
+consulterUnEtudiantRenvoie200             0.005   OK    
+compterLesEtudiantsRenvoie200             0.005   OK    
+listerTousLesEtudiantsRenvoie200          0.004   OK    
+enregistrerUnEtudiantRenvoie201           0.023   OK    
+
+
+
+
+=== 3. Synthese de la suite de tests ===
+PS> ([xml](Get-Content target\surefire-reports\TEST-com.example.studentmanagement.web.StudentControllerTest.xml)).testsuite | Select-Object name,tests,failures,errors,skipped,time
+
+
+name     : com.example.studentmanagement.web.StudentControllerTest
+tests    : 9
+failures : 0
+errors   : 0
+skipped  : 0
+time     : 2.046
+
+
+
+

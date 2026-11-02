@@ -1,48 +1,8 @@
-# TP 6 — Spring Boot et Swagger : documentation d'API microservices
 
-> Travail réalisé par **Ahmed BEN IDAR** dans le cadre du cours
-> *Architecture Microservices : Conception, Déploiement et Orchestration* (MLIAEdu — Lab 157).
-> Projet Maven unique (`student-management`), exécuté réellement contre **MySQL / MariaDB 10.4**.
->
-> ⚠️ Le **quiz** du lab n'est volontairement pas traité : seules les 12 étapes techniques sont couvertes.
 
-Ce dépôt contient une **API REST de gestion des étudiants** construite avec Spring Boot 3,
-persistée dans MySQL via Spring Data JPA, documentée automatiquement avec **springdoc-openapi
-(Swagger UI)**, et couverte par des **tests unitaires JUnit 5 + Mockito**.
+## 1. La magie de Spring Boot — démarrage réel
 
-Toutes les captures de ce README sont des **captures de résultats réels** : elles sont générées
-directement à partir des sorties console effectivement produites pendant le développement
-(dossier [`docs/logs/`](docs/logs)) par le petit outil [`docs/tools/console-vers-png.ps1`](docs/tools/console-vers-png.ps1).
 
----
-
-## 1. Sommaire
-
-| Étape du lab | Où la retrouver ici |
-|---|---|
-| 1. La magie de Spring Boot | § 2 — démarrage réel de l'application |
-| 2. Vue d'ensemble du projet | § 3 — arborescence |
-| 3. Spring Initializr | § 4 — `pom.xml` commenté |
-| 4. Analyse du `pom.xml` | § 4 |
-| 5. Configuration MySQL | § 5 — `application.properties` + vérification en base |
-| 6. Entité `Student` + `StudentRepository` | § 6 |
-| 7. Services + `StudentController` | § 7 |
-| 8. Lancer l'application | § 2 et § 8 |
-| 9. Tester les endpoints | § 9 — captures réelles des requêtes |
-| 10. Tests unitaires JUnit 5 / Mockito | § 10 — rapport Surefire réel |
-| 11. Intégration de Swagger | § 11 — Swagger UI réel |
-| 12. Résumé pédagogique | § 12 |
-
----
-
-## 2. La magie de Spring Boot — démarrage réel
-
-Commande réellement exécutée dans le terminal (dossier du projet) :
-
-```powershell
-$env:JAVA_HOME = "C:\Program Files\Java\jdk-21"
-mvn spring-boot:run
-```
 
 Sortie console réelle (log complet : [`docs/logs/app-demarrage.log`](docs/logs/app-demarrage.log)) :
 

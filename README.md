@@ -1,8 +1,52 @@
+# TP 6 — Spring Boot et Swagger : documentation d'API microservices
 
+> Travail réalisé par **Ahmed BEN IDAR** dans le cadre du cours
+> *Architecture Microservices : Conception, Déploiement et Orchestration* (MLIAEdu — Lab 157).
+> Projet Maven unique (`student-management`), exécuté réellement contre **MySQL / MariaDB 10.4**.
+>
+> ⚠️ Le **quiz** du lab n'est volontairement pas traité : seules les 12 étapes techniques sont couvertes.
 
-## 1. La magie de Spring Boot — démarrage réel
+Ce dépôt contient une **API REST de gestion des étudiants** construite avec Spring Boot 3,
+persistée dans MySQL via Spring Data JPA, documentée automatiquement avec **springdoc-openapi
+(Swagger UI)**, couverte par des **tests unitaires JUnit 5 + Mockito**, et doublée d'une
+**interface web native** (HTML/CSS/JS) servie par la même application.
 
+Toutes les captures de ce README sont des **captures de résultats réels** : celles des terminaux
+sont générées directement à partir des sorties console effectivement produites pendant le
+développement (dossier [`docs/logs/`](docs/logs)) par le petit outil
+[`docs/tools/console-vers-png.ps1`](docs/tools/console-vers-png.ps1) ; celles de l'interface
+web (§ 12) sont prises dans le navigateur sur l'application réellement lancée.
 
+---
+
+## 1. Sommaire
+
+| Étape du lab | Où la retrouver ici |
+|---|---|
+| 1. La magie de Spring Boot | § 2 — démarrage réel de l'application |
+| 2. Vue d'ensemble du projet | § 3 — arborescence |
+| 3. Spring Initializr | § 4 — `pom.xml` commenté |
+| 4. Analyse du `pom.xml` | § 4 |
+| 5. Configuration MySQL | § 5 — `application.properties` + vérification en base |
+| 6. Entité `Student` + `StudentRepository` | § 6 |
+| 7. Services + `StudentController` | § 7 |
+| 8. Lancer l'application | § 2 et § 8 |
+| 9. Tester les endpoints | § 9 — captures réelles des requêtes |
+| 10. Tests unitaires JUnit 5 / Mockito | § 10 — rapport Surefire réel |
+| 11. Intégration de Swagger | § 11 — Swagger UI réel |
+| 12. Interface web (front-end) | § 12 — application servie par Spring Boot |
+| 13. Résumé pédagogique | § 13 |
+
+---
+
+## 2. La magie de Spring Boot — démarrage réel
+
+Commande réellement exécutée dans le terminal (dossier du projet) :
+
+```powershell
+$env:JAVA_HOME = "C:\Program Files\Java\jdk-21"
+mvn spring-boot:run
+```
 
 Sortie console réelle (log complet : [`docs/logs/app-demarrage.log`](docs/logs/app-demarrage.log)) :
 
@@ -58,7 +102,14 @@ tp6_swagger_api/
     │   │   └── web/
     │   │       ├── StudentController.java    # 8 endpoints REST + annotations Swagger
     │   │       └── erreur/ApiExceptionHandler.java
-    │   └── resources/application.properties
+    │   └── resources/
+    │       ├── application.properties
+    │       └── static/                      # front-end HTML / CSS / JS natif (§ 12)
+    │           ├── index.html               # coquille de l'application (3 vues + modales)
+    │           ├── css/style.css            # thème clair / sombre, mise en page responsive
+    │           └── js/
+    │               ├── api.js               # appels fetch vers les 8 endpoints
+    │               └── app.js               # routage, rendu, formulaires, export CSV
     └── test/java/com/example/studentmanagement/web/StudentControllerTest.java
 ```
 
@@ -347,7 +398,63 @@ Accès :
 
 ---
 
-## 12. Résumé pédagogique
+## 12. Interface web — front-end servi par Spring Boot
+
+En complément de l'API, une interface web a été développée sans aucun framework JavaScript :
+HTML, CSS et JavaScript natifs, placés dans `src/main/resources/static/`. Spring Boot sert donc
+l'application et l'API depuis la même origine `http://localhost:8080`, ce qui évite tout problème
+de CORS et supprime toute étape de compilation côté client.
+
+L'accueil affiche un tableau de bord : nombre d'étudiants, filières couvertes, moyenne par
+filière et années représentées, ainsi qu'une répartition par filière et les derniers inscrits.
+
+![Tableau de bord de l'interface](docs/screenshots/frontend-tableau-de-bord.png)
+
+La vue Étudiants présente les enregistrements remontés par `GET /students/all` avec recherche
+instantanée sur le nom (appel différé à `GET /students/search`), export CSV du filtre courant et
+actions par ligne.
+
+![Liste des étudiants avec recherche et export](docs/screenshots/frontend-liste-etudiants.png)
+
+Une recherche sans résultat bascule sur un état vide explicite plutôt que sur un tableau vide.
+
+![Recherche sans résultat](docs/screenshots/frontend-recherche-vide.png)
+
+La vue Statistiques exploite directement l'agrégat `GET /students/statistiques` : cartes de
+synthèse, deux histogrammes et un journal des appels HTTP horodatés avec code de retour et durée.
+Ce journal est un vrai instrument de débogage : il montre en direct chaque requête émise par la
+page vers l'API.
+
+![Statistiques calculées par l'API](docs/screenshots/frontend-statistiques.png)
+
+Le formulaire de création et de modification reprend les contraintes Jakarta de l'entité : les
+champs obligatoires sont signalés avant tout appel réseau.
+
+![Validation du formulaire côté navigateur](docs/screenshots/frontend-validation-formulaire.png)
+
+Si le serveur refuse malgré tout la requête, le gestionnaire d'erreurs de l'API renvoie la map
+`champsInvalides` et l'interface replace chaque message serveur sur le champ concerné.
+
+![Formulaire rempli avant enregistrement](docs/screenshots/frontend-formulaire-rempli.png)
+
+Chaque ligne ouvre une fiche détaillée avec l'âge calculé et la filière, sans nouvelle requête
+puisque les données sont déjà en mémoire.
+
+![Fiche étudiant détaillée](docs/screenshots/frontend-fiche-etudiant.png)
+
+La suppression est protégée par une confirmation explicite qui rappelle le nom et l'identifiant
+concernés, puis appelle `DELETE /students/delete/{id}`.
+
+![Confirmation avant suppression](docs/screenshots/frontend-confirmation-suppression.png)
+
+Un thème sombre est disponible et mémorisé dans le navigateur ; le choix suit aussi la
+préférence système au premier chargement.
+
+![Thème sombre de l'interface](docs/screenshots/frontend-theme-sombre.png)
+
+---
+
+## 13. Résumé pédagogique
 
 1. **Spring Boot supprime la configuration** : les starters apportent Tomcat, Jackson et
    Hibernate ; le `main` tient en trois lignes et l'application est opérationnelle en ~9 s.
@@ -366,7 +473,7 @@ Accès :
 
 ---
 
-## 13. Personnalisation par rapport à l'énoncé
+## 14. Personnalisation par rapport à l'énoncé
 
 Pour éviter la similarité avec les autres rendus, l'application ne se limite pas au strict
 minimum du lab :
@@ -383,10 +490,11 @@ minimum du lab :
 | Tests | 5 tests | 9 tests (dont cas d'erreur 404 et exception métier) |
 | Base | — | `studentdb` sur MySQL réel, vérifiée par requêtes SQL (capture § 5) |
 | Traçabilité | — | logs réels versionnés + scripts de test reproductibles |
+| Interface | — | front-end HTML/CSS/JS natif servi par Spring Boot (§ 12) |
 
 ---
 
-## 14. Reproductibilité complète
+## 15. Reproductibilité complète
 
 ```powershell
 git clone https://github.com/Ahmedbenidar/TP-6-Spring-Boot-et-Swagger---Documentation-d-API-Microservices.git
@@ -400,6 +508,9 @@ mvn spring-boot:run     # API sur http://localhost:8080
 # dans un second terminal
 powershell -File docs\tools\tester-api.ps1     # rejoue les 13 scénarios curl
 ```
+
+L'interface web est ensuite disponible sur <http://localhost:8080/> : elle consomme la même API
+que Swagger UI et ne demande aucune installation supplémentaire.
 
 Régénérer les captures depuis les logs :
 

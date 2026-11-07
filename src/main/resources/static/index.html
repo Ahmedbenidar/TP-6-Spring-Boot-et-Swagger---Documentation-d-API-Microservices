@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="clair">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudentHub — Gestion des etudiants</title>
+  <meta name="description" content="Interface web de l'API REST Student Management (TP 6 - Spring Boot et Swagger).">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234f46e5'/%3E%3Cpath d='M9 21V11l7 5 7-5v10' stroke='white' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app">
+
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="9" fill="currentColor"/><path d="M9 21V11l7 5 7-5v10" stroke="#fff" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="brand-text">
+          <strong>StudentHub</strong>
+          <small>TP 6 &middot; Spring Boot &amp; Swagger</small>
+        </span>
+      </div>
+
+      <nav class="nav" aria-label="Navigation principale">
+        <p class="nav-label">Pilotage</p>
+        <a class="nav-item" href="#tableau" data-vue="tableau">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M3 13h8V3H3v10Zm0 8h8v-6H3v6Zm10 0h8V11h-8v10Zm0-18v6h8V3h-8Z" fill="currentColor"/></svg>
+          Tableau de bord
+        </a>
+        <a class="nav-item" href="#etudiants" data-vue="etudiants">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm0 2c-4 0-8 2-8 4.5V20h16v-1.5C20 16 16 14 12 14Z" fill="currentColor"/></svg>
+          Etudiants
+          <span class="nav-badge" id="nav-nombre">—</span>
+        </a>
+        <a class="nav-item" href="#statistiques" data-vue="statistiques">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 20h3V10H4v10Zm6.5 0h3V4h-3v16ZM17 20h3v-7h-3v7Z" fill="currentColor"/></svg>
+          Statistiques
+        </a>
+
+        <p class="nav-label">Ressources</p>
+        <a class="nav-item" href="/swagger-ui.html" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 6h16v2H4V6Zm0 5h16v2H4v-2Zm0 5h10v2H4v-2Z" fill="currentColor"/></svg>
+          Swagger UI
+          <svg class="nav-external" viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><path d="M14 3h7v7h-2V6.4l-8.3 8.3-1.4-1.4L17.6 5H14V3ZM5 5h5v2H7v10h10v-3h2v5H5V5Z" fill="currentColor"/></svg>
+        </a>
+        <a class="nav-item" href="/v3/api-docs" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M9.4 16.6 4.8 12l4.6-4.6L8 6 2 12l6 6 1.4-1.4Zm5.2 0 4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4Z" fill="currentColor"/></svg>
+          Contrat OpenAPI
+          <svg class="nav-external" viewBox="0 0 24 24" width="13" height="13" aria-hidden="true"><path d="M14 3h7v7h-2V6.4l-8.3 8.3-1.4-1.4L17.6 5H14V3ZM5 5h5v2H7v10h10v-3h2v5H5V5Z" fill="currentColor"/></svg>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="author">
+          <span class="avatar" aria-hidden="true">AB</span>
+          <span class="author-text">
+            <strong>Ahmed BEN IDAR</strong>
+            <small>etudiant@toubkalit.ma</small>
+          </span>
+        </div>
+        <span class="etat-api" id="etat-api" data-etat="attente">
+          <span class="etat-point" aria-hidden="true"></span>
+          <span class="etat-texte">Connexion...</span>
+        </span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="btn-icon burger" id="burger" type="button" aria-label="Ouvrir le menu">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 7h16v2H4V7Zm0 5h16v2H4v-2Zm0 5h16v2H4v-2Z" fill="currentColor"/></svg>
+        </button>
+
+        <div class="topbar-title">
+          <h1 id="titre-vue">Tableau de bord</h1>
+          <p id="sous-titre-vue">Vue d'ensemble de la promotion</p>
+        </div>
+
+        <div class="topbar-actions">
+          <div class="search">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M10 4a6 6 0 1 0 3.7 10.7l4.3 4.3 1.4-1.4-4.3-4.3A6 6 0 0 0 10 4Zm0 2a4 4 0 1 1 0 8 4 4 0 0 1 0-8Z" fill="currentColor"/></svg>
+            <input type="search" id="recherche" placeholder="Rechercher un nom..." autocomplete="off" aria-label="Rechercher un etudiant par nom">
+            <button class="search-clear" id="recherche-effacer" type="button" aria-label="Effacer la recherche" hidden>&times;</button>
+          </div>
+
+          <button class="btn-icon" id="theme" type="button" aria-label="Changer de theme">
+            <svg class="icone-soleil" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2.5v2m0-19v2m9.5 7.5h-2m-15 0h-2m15.9-6.4-1.4 1.4M6.5 6.5 5.1 5.1m13.8 13.8-1.4-1.4M6.5 17.5l-1.4 1.4" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+            <svg class="icone-lune" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" fill="currentColor"/></svg>
+          </button>
+
+          <button class="btn btn-primary" id="btn-ajouter" type="button">
+            <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6V5Z" fill="currentColor"/></svg>
+            Nouvel etudiant
+          </button>
+        </div>
+      </header>
+
+      <div class="content">
+
+        <section class="vue" id="vue-tableau" hidden>
+          <div class="cartes" id="cartes-indicateurs"></div>
+
+          <div class="grille-deux">
+            <article class="panneau">
+              <header class="panneau-tete">
+                <h2>Repartition par filiere</h2>
+                <span class="pastille" id="pastille-filieres">—</span>
+              </header>
+              <div class="panneau-corps" id="mini-filieres"></div>
+            </article>
+
+            <article class="panneau">
+              <header class="panneau-tete">
+                <h2>Derniers inscrits</h2>
+                <button class="btn-lien" data-vue-lien="etudiants" type="button">Tout voir</button>
+              </header>
+              <div class="panneau-corps" id="derniers-inscrits"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="vue" id="vue-etudiants" hidden>
+          <article class="panneau">
+            <header class="panneau-tete">
+              <h2>Annuaire des etudiants</h2>
+              <div class="tete-actions">
+                <span class="pastille" id="pastille-resultats">—</span>
+                <button class="btn btn-ghost" id="btn-export" type="button">
+                  <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 3v10.2l3.6-3.6 1.4 1.4L12 17 6.9 11l1.4-1.4L11 13.2V3h1ZM5 19h14v2H5v-2Z" fill="currentColor"/></svg>
+                  Exporter CSV
+                </button>
+              </div>
+            </header>
+
+            <div class="tableau-enveloppe">
+              <table class="tableau" id="tableau-etudiants">
+                <thead>
+                  <tr>
+                    <th scope="col" class="col-etudiant">Etudiant</th>
+                    <th scope="col">Filiere</th>
+                    <th scope="col">Naissance</th>
+                    <th scope="col">E-mail</th>
+                    <th scope="col" class="col-actions">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="corps-tableau"></tbody>
+              </table>
+              <div class="vide" id="tableau-vide" hidden>
+                <svg viewBox="0 0 24 24" width="40" height="40" aria-hidden="true"><path d="M10 4a6 6 0 1 0 3.7 10.7l4.3 4.3 1.4-1.4-4.3-4.3A6 6 0 0 0 10 4Zm0 2a4 4 0 1 1 0 8 4 4 0 0 1 0-8Z" fill="currentColor"/></svg>
+                <p>Aucun etudiant ne correspond a la recherche.</p>
+                <button class="btn btn-ghost" id="btn-reinit-filtre" type="button">Reinitialiser</button>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <section class="vue" id="vue-statistiques" hidden>
+          <div class="cartes" id="cartes-stats"></div>
+
+          <div class="grille-deux">
+            <article class="panneau">
+              <header class="panneau-tete"><h2>Etudiants par filiere</h2></header>
+              <div class="panneau-corps" id="graphe-filieres"></div>
+            </article>
+            <article class="panneau">
+              <header class="panneau-tete"><h2>Etudiants par annee de naissance</h2></header>
+              <div class="panneau-corps" id="graphe-annees"></div>
+            </article>
+          </div>
+
+          <article class="panneau">
+            <header class="panneau-tete">
+              <h2>Journal des appels a l'API</h2>
+              <span class="pastille" id="pastille-journal">0 appel</span>
+            </header>
+            <div class="panneau-corps" id="journal-api"></div>
+          </article>
+        </section>
+
+      </div>
+
+      <footer class="pied">
+        <span>StudentHub — interface de l'API Student Management</span>
+        <span id="pied-horloge">—</span>
+      </footer>
+    </main>
+  </div>
+
+  <div class="voile" id="voile" hidden></div>
+
+  <div class="modale" id="modale-formulaire" role="dialog" aria-modal="true" aria-labelledby="titre-modale-formulaire" hidden>
+    <header class="modale-tete">
+      <h2 id="titre-modale-formulaire">Nouvel etudiant</h2>
+      <button class="btn-icon" type="button" data-fermer aria-label="Fermer">&times;</button>
+    </header>
+    <form id="formulaire" novalidate>
+      <div class="modale-corps modale-grille">
+        <div class="champ">
+          <label for="champ-nom">Nom <span class="requis">*</span></label>
+          <input type="text" id="champ-nom" name="nom" maxlength="60" required autocomplete="off">
+          <p class="erreur-champ" data-erreur="nom"></p>
+        </div>
+        <div class="champ">
+          <label for="champ-prenom">Prenom <span class="requis">*</span></label>
+          <input type="text" id="champ-prenom" name="prenom" maxlength="60" required autocomplete="off">
+          <p class="erreur-champ" data-erreur="prenom"></p>
+        </div>
+        <div class="champ">
+          <label for="champ-naissance">Date de naissance <span class="requis">*</span></label>
+          <input type="date" id="champ-naissance" name="dateNaissance" required>
+          <p class="erreur-champ" data-erreur="dateNaissance"></p>
+        </div>
+        <div class="champ">
+          <label for="champ-email">Adresse e-mail <span class="requis">*</span></label>
+          <input type="email" id="champ-email" name="email" maxlength="120" required autocomplete="off" placeholder="prenom.nom@toubkalit.ma">
+          <p class="erreur-champ" data-erreur="email"></p>
+        </div>
+        <div class="champ champ-large">
+          <label for="champ-filiere">Filiere <span class="requis">*</span></label>
+          <input type="text" id="champ-filiere" name="filiere" maxlength="40" required list="liste-filieres" autocomplete="off">
+          <datalist id="liste-filieres">
+            <option value="Genie Informatique"></option>
+            <option value="Genie Civil"></option>
+            <option value="Genie Industriel"></option>
+            <option value="Genie Mecanique"></option>
+            <option value="Genie Electrique"></option>
+          </datalist>
+          <p class="erreur-champ" data-erreur="filiere"></p>
+        </div>
+        <p class="note-formulaire champ-large" id="note-formulaire">Les champs marques d'un asterisque sont obligatoires.</p>
+      </div>
+      <footer class="modale-pied">
+        <button class="btn btn-ghost" type="button" data-fermer>Annuler</button>
+        <button class="btn btn-primary" type="submit" id="btn-enregistrer">Enregistrer</button>
+      </footer>
+    </form>
+  </div>
+
+  <div class="modale" id="modale-fiche" role="dialog" aria-modal="true" aria-labelledby="titre-modale-fiche" hidden>
+    <header class="modale-tete">
+      <h2 id="titre-modale-fiche">Fiche etudiant</h2>
+      <button class="btn-icon" type="button" data-fermer aria-label="Fermer">&times;</button>
+    </header>
+    <div class="modale-corps" id="contenu-fiche"></div>
+    <footer class="modale-pied">
+      <button class="btn btn-danger-ghost" type="button" id="btn-supprimer-fiche">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M6 7h12v13H6V7Zm3-4h6l1 2h4v2H4V5h4l1-2Z" fill="currentColor"/></svg>
+        Supprimer
+      </button>
+      <button class="btn btn-ghost" type="button" data-fermer>Fermer</button>
+    </footer>
+  </div>
+
+  <div class="modale modale-etroite" id="modale-confirmation" role="dialog" aria-modal="true" aria-labelledby="titre-modale-confirmation" hidden>
+    <header class="modale-tete">
+      <h2 id="titre-modale-confirmation">Confirmer la suppression</h2>
+      <button class="btn-icon" type="button" data-fermer aria-label="Fermer">&times;</button>
+    </header>
+    <div class="modale-corps">
+      <p id="texte-confirmation">Cette action est definitive.</p>
+    </div>
+    <footer class="modale-pied">
+      <button class="btn btn-ghost" type="button" data-fermer>Annuler</button>
+      <button class="btn btn-danger" type="button" id="btn-confirmer-suppression">Supprimer</button>
+    </footer>
+  </div>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
